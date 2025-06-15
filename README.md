@@ -40,3 +40,8 @@ to avoid interferig with any existing infrastructure.
 
 - [Getting Support](.github/SUPPORT.md)
 - [Security](.github/SECURITY.md)
+
+## Thanks
+
+- This [ServerFault answer](https://serverfault.com/a/216611/205542) helped me find RFC4193
+  for the safe IPv6 address range.
