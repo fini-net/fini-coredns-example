@@ -123,14 +123,14 @@ clean_readme:
     echo "repo={{BLUE}}$GITHUB_REPO{{NORMAL}}"
 
     cat > README.md << END_OF_HEREDOC
-    # FINI template-repo
+    # FINI ${GITHUB_REPO}
 
     ![GitHub Issues](https://img.shields.io/github/issues/${GITHUB_ORG}/${GITHUB_REPO})
     ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/${GITHUB_ORG}/${GITHUB_REPO})
     ![GitHub License](https://img.shields.io/github/license/${GITHUB_ORG}/${GITHUB_REPO})
     ![GitHub watchers](https://img.shields.io/github/watchers/${GITHUB_ORG}/${GITHUB_REPO})
 
-    A good starting place for new github repos.
+    A good starting place for something. (TODO)
 
     ## Contibuting
 
