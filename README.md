@@ -23,6 +23,9 @@ the domains in this repo.
 Feel free to tweak the examples in `dns/*.js` and
 run `just push` to regenerate the BIND files.
 
+The [development processs](.github/CONTRIBUTING.md#development-process)
+documents the subcommands available in `just` to work with this repo.
+
 ## Standards
 
 The domains and IPs in the examples contained in this repo should comply with
