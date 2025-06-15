@@ -66,7 +66,7 @@ merge: _on_a_branch
 [group('Process')]
 branch branchname: _main_branch
     #!/usr/bin/env bash
-    NOW=`just utcdate`
+    NOW=`just _utcdate`
     git co -b "chicks/$NOW-{{ branchname }}"
 
 # view PR in web browser
@@ -129,10 +129,7 @@ push:
 domain_group_import group:
         dnscontrol get-zones --format=js --out={{group}}.js bind - `just domains_in_group {{group}}`
 
-#
-# install software recipes
-#
-
+# install prerequisites (on Macs)
 [macos, group('install')]
 install_prereqs:
 	brew install jq dnscontrol coredns
