@@ -16,6 +16,14 @@ There is only scaffolding in this repo so far, but actual development will start
 
 TODO: how to install container and run tests
 
+## Standards
+
+The domains and IPs in the examples contained in this repo should comply with
+[RFC2606: Reserved Top Level DNS Names](https://www.rfc-editor.org/rfc/rfc2606.html),
+[RFC1918: Address Allocation for Private Internets](https://www.rfc-editor.org/rfc/rfc1918.html),
+and [RFC4193: Unique Local IPv6 Unicast Addresses](https://www.rfc-editor.org/rfc/rfc4193.txt)
+to avoid interferig with any existing infrastructure.
+
 ## Contibuting
 
 - [Code of Conduct](.github/CODE_OF_CONDUCT.md)
