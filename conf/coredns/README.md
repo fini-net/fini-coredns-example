@@ -2,6 +2,11 @@
 
 Configs for coredns.
 
+## usage
+
+Run `coredns` in this directory and it should serve
+the two example domains from elsewhere in this repo.
+
 ## server logs
 
 ```bash

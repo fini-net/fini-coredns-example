@@ -14,7 +14,13 @@ There is only scaffolding in this repo so far, but actual development will start
 
 ## Usage
 
-TODO: how to install container and run tests
+Check out [conf/coredns](conf/coredns) to see an example of serving
+the domains in this repo.
+
+Feel free to tweak the examples in `dns/*.js` and
+run `just push` to regenerate the BIND files.
+
+TODO: build container
 
 ## Standards
 
