@@ -1,0 +1,12 @@
+# example domains
+example.com:5300 {
+	log
+	errors
+	file ../../dns/zones/example.com.zone
+}
+
+example.org:5300 {
+	log
+	errors
+	file ../../dns/zones/example.org.zone
+}
