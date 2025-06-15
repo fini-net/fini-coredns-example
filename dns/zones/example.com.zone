@@ -1,0 +1,77 @@
+$TTL 3600
+; generated with dnscontrol 2025-06-15T18:56:43-04:00
+@          300   IN SOA   ns0.example.com. info.example.com. 2025061504 1200 600 604800 3600
+                 IN NS    ns0.example.com.
+                 IN NS    ns1.example.com.
+                 IN NS    ns2.example.com.
+                 IN NS    ns3.example.com.
+                 IN A     10.0.0.101
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+ftp              IN CNAME server1.example.com.
+mx0              IN A     10.0.0.10
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+mx3              IN A     10.0.0.13
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+mx4              IN A     10.0.0.14
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+mx5              IN A     10.0.0.15
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+mx6              IN A     10.0.0.16
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+ns0              IN A     10.0.0.10
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+ns1              IN A     10.0.0.11
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+ns2              IN A     10.0.0.12
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+ns3              IN A     10.0.0.13
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+server1          IN A     10.0.0.101
+           14400 IN AAAA  fc00:abcd:ef01:2345:6789:123:4567:8901
+                 IN MX    10 mx0.example.com.
+                 IN MX    30 mx3.example.com.
+                 IN MX    40 mx4.example.com.
+                 IN MX    50 mx5.example.com.
+                 IN MX    60 mx6.example.com.
+                 IN TXT   "in the lab somewhere"
+www              IN CNAME server1.example.com.

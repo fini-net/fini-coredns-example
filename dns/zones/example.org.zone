@@ -1,0 +1,20 @@
+$TTL 3600
+; generated with dnscontrol 2025-06-15T19:05:41-04:00
+@          300   IN SOA   ns0.example.com. info.example.com. 2025061501 1200 600 604800 3600
+                 IN NS    ns0.example.com.
+                 IN NS    ns1.example.com.
+                 IN NS    ns2.example.com.
+                 IN NS    ns3.example.com.
+                 IN A     10.1.0.11
+                 IN MX    1 aspmx.l.google.com.
+                 IN MX    5 alt1.aspmx.l.google.com.
+                 IN MX    5 alt2.aspmx.l.google.com.
+                 IN MX    10 alt3.aspmx.l.google.com.
+                 IN MX    10 alt4.aspmx.l.google.com.
+calendar         IN CNAME ghs.googlehosted.com.
+drive            IN CNAME ghs.googlehosted.com.
+groups           IN CNAME ghs.googlehosted.com.
+mail             IN CNAME ghs.googlehosted.com.
+sites            IN CNAME ghs.googlehosted.com.
+start            IN CNAME ghs.googlehosted.com.
+www              IN A     10.1.0.12
