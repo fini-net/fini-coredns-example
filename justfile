@@ -103,7 +103,7 @@ _main_branch:
 # print UTC date in ISO format
 [group('Utility')]
 [no-cd]
-@utcdate:
+@_utcdate:
     TZ=UTC date +"%Y-%m-%d"
 
 # make a release
