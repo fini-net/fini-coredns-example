@@ -26,3 +26,20 @@ install_prereqs:
 	brew install jq dnscontrol coredns
 	# some rust magic to get cargo that I've forgotten
 	cargo install toml-cli
+
+# build container with podman
+[group('build')]
+build_con:
+	# just makes sure that . is the topmost dir of the git repo
+	podman build . -t test
+
+# run container with podman
+[group('build')]
+run_con:
+	#podman run -d --name corednstest -p 1029:53/udp test --conf /root/Corefile
+	podman run -d --name corednstest -p 1029:53/udp test --conf /etc/Corefile
+
+# clean up containers with podman
+[group('build')]
+clean_con:
+	podman stop corednstest ; podman rm corednstest

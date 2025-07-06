@@ -1,0 +1,19 @@
+# default forwarder
+.:53 {
+    forward . 8.8.8.8 9.9.9.9
+    log
+    errors
+}
+
+# example domains
+example.com:53 {
+	log
+	errors
+	file /zones/example.com.zone
+}
+
+example.org:53 {
+	log
+	errors
+	file /zones/example.org.zone
+}
