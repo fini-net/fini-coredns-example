@@ -33,7 +33,7 @@ To generate the container on your local machine run `just build_con`.
 To run the built container run `just run_con`.  A DNS server should be
 available on port 1029.  You can see it working with `dig` like so:
 
-```
+```ShellSession
 % dig @localhost -p 1029 www.example.com
 
 ; <<>> DiG 9.10.6 <<>> @localhost -p 1029 www.example.com
