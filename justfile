@@ -1,24 +1,25 @@
 # project justfile
 
+# github process recipes carried over from the template repo
 import? '.just/gh-process.just'
 
-# preview
+# we could split this justfile up more but I wanted to keep the
+# most interesting parts of the demo in this file.
+
+# list / default
+[group('just')]
+list:
+	just --list
+
+# preview DNS changes
 [group('dnscontrol')]
-[no-cd]
 preview:
-        dnscontrol preview
+	cd dns && dnscontrol preview --cmode concurrent
 
 # push into results directory, someday production
 [group('dnscontrol')]
-[no-cd]
 push:
-        dnscontrol push --cmode concurrent
-
-# should not be needed anymore, keeping as example
-[group('dnscontrol')]
-[no-cd]
-domain_group_import group:
-        dnscontrol get-zones --format=js --out={{group}}.js bind - `just domains_in_group {{group}}`
+	cd dns && dnscontrol push --cmode concurrent
 
 # install prerequisites (on Macs)
 [macos, group('install')]
@@ -27,19 +28,24 @@ install_prereqs:
 	# some rust magic to get cargo that I've forgotten
 	cargo install toml-cli
 
+latest_release := `gh release list -L 1 --json name,isLatest | jq -r '.[].name'`
+container_name := "fini-coredns-dnscontrol-example"
+
 # build container with podman
-[group('build')]
+[group('container')]
 build_con:
+	@echo "{{BLUE}}latest_release={{ latest_release }}{{NORMAL}}"
 	# just makes sure that . is the topmost dir of the git repo
-	podman build . -t test
+	podman build -t {{ container_name }}:latest -t {{ container_name}}:{{ latest_release }} --build-arg BUILD_VERSION="{{ latest_release }}" .
 
 # run container with podman
-[group('build')]
+[group('container')]
 run_con:
-	#podman run -d --name corednstest -p 1029:53/udp test --conf /root/Corefile
-	podman run -d --name corednstest -p 1029:53/udp test --conf /etc/Corefile
+	#podman run -d --name corednstest -p 1029:53/udp {{ container_name }} --conf /root/Corefile
+	podman run -d --name corednstest -p 1029:53/udp {{ container_name }} --conf /etc/Corefile
 
 # clean up containers with podman
-[group('build')]
+[group('container')]
 clean_con:
-	podman stop corednstest ; podman rm corednstest
+	podman stop corednstest
+	podman rm corednstest
