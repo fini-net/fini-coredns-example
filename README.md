@@ -69,8 +69,10 @@ example.com.            3600    IN      NS      ns3.example.com.
 That is the same CNAME and IP that you can see in the
 [zone file](dns/zones/example.com.zone).
 
+#### Easier working wih the container
 
-To save you some typing you could run `just test_con`
+To save you some typing you could run `just test_con` to get this
+experience:
 
 ```ShellSession
 % just test_con
