@@ -6,10 +6,12 @@ ARG PROJECT_URL="https://github.com/fini-net/fini-coredns-example"
 # TODO: include "generated with" line from zone file as a LABEL
 LABEL \
   org.opencontainers.image.title="FINI coredns demo with dnscontrol" \
+  org.opencontainers.image.description="FINI coredns demo with dnscontrol" \
   org.opencontainers.image.url="$PROJECT_URL" \
   org.opencontainers.image.source="$PROJECT_URL" \
   org.opencontainers.image.documentation="$PROJECT_URL" \
   org.opencontainers.image.version="$BUILD_VERSION" \
+  org.opencontainers.image.license="GPL2" \
   org.opencontainers.image.vendor="FINI.net" \
   org.opencontainers.image.authors="Christopher Hicks <chicks.net@gmail.com>" \
   author="Christopher Hicks <chicks.net@gmail.com>" \
