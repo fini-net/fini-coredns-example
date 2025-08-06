@@ -6,6 +6,9 @@ on:
       - main
   pull_request:
 
+# global permissions
+permissions: read-all
+
 jobs:
   lint:
     runs-on: ubuntu-latest
