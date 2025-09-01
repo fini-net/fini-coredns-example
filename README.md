@@ -114,6 +114,25 @@ example.com.            3600    IN      NS      ns3.example.com.
 
 Looks great until we can automate it!™
 
+#### Container commands reference
+
+For direct podman usage without `just`:
+
+```bash
+# Run the container (DNS server on port 1029)
+podman run -d --name corednstest -p 1029:53/udp fini-coredns-example
+
+# Test the DNS server
+dig @localhost -p 1029 www.example.com
+
+# Stop and clean up
+podman stop corednstest
+podman rm corednstest
+
+# Inspect container metadata
+podman inspect fini-coredns-example | jq '.[0].Labels'
+```
+
 ## Standards
 
 The domains and IPs in the examples contained in this repo should comply with
