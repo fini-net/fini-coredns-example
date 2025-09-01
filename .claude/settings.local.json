@@ -3,7 +3,8 @@
     "allow": [
       "Bash(podman inspect:*)",
       "WebSearch",
-      "Bash(go mod:*)"
+      "Bash(go mod:*)",
+      "Bash(npx markdownlint-cli2:*)"
     ],
     "deny": [],
     "ask": []
