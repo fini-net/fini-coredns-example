@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(podman inspect:*)",
+      "WebSearch",
+      "Bash(go mod:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
