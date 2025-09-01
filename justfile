@@ -63,17 +63,17 @@ test_con:
 inspect_con:
 	podman inspect fini-coredns-example | jq '.[0].Labels'
 
-# TODO: redo this to work with the PAT
 # login to ghcr
-#[group('container')]
-#ghcr_login:
-#	#!/usr/bin/env bash
-#
-#	if podman login {{ container_repo }} --get-login > /dev/null; then
-#		echo "{{GREEN}}already logged in to {{ container_repo }}.{{NORMAL}}"
-#	else
-#		gh auth token | podman login {{ container_repo }} --username {{ github_user }} --password-stdin
-#	fi
+[group('container')]
+ghcr_login:
+	#!/usr/bin/env bash
+
+	if podman login {{ container_repo }} --get-login > /dev/null; then
+		echo "{{GREEN}}already logged in to {{ container_repo }}.{{NORMAL}}"
+	else
+		#gh auth token | podman login {{ container_repo }} --username {{ github_user }} --password-stdin
+		op item get "fini-coredns-example-pat" --reveal --field token | podman login {{ container_repo }} --username {{ github_user }} --password-stdin
+	fi
 
 # login to ghcr
 [group('container')]
@@ -89,6 +89,21 @@ ghcr_push:
 
 # ?? should we use the two argument form of `push` instead?
 # ?? should we only push each build once?
+
+# run DNS tests against container
+[group('test')]
+test_dns:
+	go test ./test -v
+
+# run tests with race detection
+[group('test')]
+test_dns_race:
+	go test ./test -v -race
+
+# run specific test
+[group('test')]
+test_dns_single TEST:
+	go test ./test -v -run {{TEST}}
 
 # show internal justfile variables
 [group('utility')]
