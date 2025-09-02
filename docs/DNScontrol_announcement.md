@@ -8,7 +8,7 @@ Hello DNSControl Community,
 
 I'm excited to share a comprehensive example repository that demonstrates the complete workflow from DNSControl JavaScript configurations to a production-ready containerized DNS server:
 
-**🔗 Repository**: https://github.com/fini-net/fini-coredns-example
+**🔗 Repository**: [https://github.com/fini-net/fini-coredns-example](https://github.com/fini-net/fini-coredns-example)
 
 ## What This Provides
 
