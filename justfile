@@ -90,19 +90,22 @@ ghcr_push:
 # ?? should we use the two argument form of `push` instead?
 # ?? should we only push each build once?
 
-# run DNS tests against container
+# run DNS tests against container (requires container to be running)
 [group('test')]
 test_dns:
+	@echo "{{BLUE}}Make sure container is running: just run_con{{NORMAL}}"
 	go test ./test -v
 
 # run tests with race detection
 [group('test')]
 test_dns_race:
+	@echo "{{BLUE}}Make sure container is running: just run_con{{NORMAL}}"
 	go test ./test -v -race
 
 # run specific test
 [group('test')]
 test_dns_single TEST:
+	@echo "{{BLUE}}Make sure container is running: just run_con{{NORMAL}}"
 	go test ./test -v -run {{TEST}}
 
 # show internal justfile variables
