@@ -4,7 +4,9 @@
       "Bash(podman inspect:*)",
       "WebSearch",
       "Bash(go mod:*)",
-      "Bash(npx markdownlint-cli2:*)"
+      "Bash(npx markdownlint-cli2:*)",
+      "Bash(go test:*)",
+      "Bash(just test_dns:*)"
     ],
     "deny": [],
     "ask": []
