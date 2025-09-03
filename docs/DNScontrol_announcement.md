@@ -15,6 +15,7 @@ I'm excited to share a comprehensive example repository that demonstrates the co
 This repository showcases a real-world implementation of:
 
 - **JavaScript DNS Configuration**: Clean, maintainable DNS record definitions using DNSControl syntax
+- **DNSControl → CoreDNS Integration**: Many don't realize that DNSControl's BIND provider generates zone files that CoreDNS can serve directly!
 - **Automated BIND Zone Generation**: `dnscontrol push` converts JS configs to standard BIND zone files
 - **Containerized DNS Server**: CoreDNS container serving the generated zones (available in GHCR)
 - **Comprehensive Testing**: Go test suite validating DNS responses for A, AAAA, CNAME, TXT, NS, and MX records
@@ -41,16 +42,14 @@ just test_dns    # Run automated test suite
 
 ## Why This Matters
 
-Many teams struggle with the gap between DNSControl configuration and actual
-DNS service deployment. This repository bridges that gap by providing:
+If you're already using DNSControl to manage your DNS configurations, you've probably wondered about the next step: how do you actually serve those zones reliably? This repository addresses common sysadmin challenges:
 
-1. **Real-world patterns** for organizing DNS configurations
-2. **Container-first deployment** approach
-3. **Automated validation** ensuring DNS changes work as expected
-4. **Development workflow** suitable for CI/CD integration
+1. **"How do I test my DNS changes before they go live?"** - Automated Go tests validate actual DNS responses, not just config syntax
+2. **"Can I run my own authoritative DNS without BIND complexity?"** - CoreDNS provides a simpler, container-native alternative that directly consumes DNSControl's BIND output
+3. **"How do I integrate DNS deployment into modern infrastructure?"** - Complete containerization with pre-built GHCR images and `just` workflow automation
+4. **"What's the path from DNSControl development to production DNS service?"** - End-to-end example from JavaScript configs to running DNS server
 
-The testing component is particularly valuable - it validates not just that
-zones compile, but that they actually resolve correctly when served.
+The testing component is particularly valuable for sysadmins - it validates not just that your DNSControl configs compile, but that they actually resolve correctly when served to clients. No more deploying DNS changes and hoping they work!
 
 ## Use Cases
 
