@@ -7,11 +7,13 @@ on:
   pull_request:
 
 # global permissions
-permissions: read-all
+permissions: {}
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
     - uses: actions/checkout@v4
     - uses: DavidAnson/markdownlint-cli2-action@v19
