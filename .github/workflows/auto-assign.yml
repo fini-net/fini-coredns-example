@@ -7,7 +7,7 @@ on:
     types: [opened]
 
 # global permissions
-permissions: read-all
+permissions: {}
 
 jobs:
   run:
@@ -15,6 +15,7 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
+      contents: read
     steps:
     - name: 'Auto-assign issue'
       uses: pozil/auto-assign-issue@v2
