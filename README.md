@@ -195,7 +195,7 @@ The domains and IPs in the examples contained in this repo should comply with
 
 to avoid interfering with any existing infrastructure.
 
-## Contibuting
+## Contributing
 
 - [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 - [Contributing Guide](.github/CONTRIBUTING.md) includes a step-by-step guide to our
