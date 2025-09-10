@@ -6,7 +6,10 @@
       "Bash(go mod:*)",
       "Bash(npx markdownlint-cli2:*)",
       "Bash(go test:*)",
-      "Bash(just test_dns:*)"
+      "Bash(just test_dns:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh issue create:*)"
     ],
     "deny": [],
     "ask": []
