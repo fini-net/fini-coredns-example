@@ -128,7 +128,7 @@ For direct podman usage without `just`:
 
 ```bash
 # Run the container (DNS server on port 1029)
-podman run -d --name corednstest -p 1029:53/udp fini-coredns-example
+podman run -d --name corednstest -p 1029:53/udp ghcr.io/fini-net/fini-coredns-example --config /etc/Corefile
 
 # Test the DNS server
 dig @localhost -p 1029 www.example.com
