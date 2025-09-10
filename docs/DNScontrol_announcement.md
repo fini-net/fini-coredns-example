@@ -4,7 +4,7 @@ Subject: New Complete Example: DNSControl → CoreDNS Container with Automated T
 
 ---
 
-Hello DNSControl Community,
+Howdy DNSControl Community,
 
 I'm excited to share a comprehensive example repository that demonstrates the complete workflow from DNSControl JavaScript configurations to a production-ready containerized DNS server:
 
@@ -34,10 +34,11 @@ This repository showcases a real-world implementation of:
 ```bash
 git clone https://github.com/fini-net/fini-coredns-example
 cd fini-coredns-example
-just push        # Generate BIND files from JavaScript
-just build_con   # Build CoreDNS container
+just push        # Generate BIND files from JavaScript (optional, already in the container)
+just build_con   # Build CoreDNS container (optional, container is in GHCR)
 just run_con     # Start DNS server on port 1029
-just test_dns    # Run automated test suite
+just test_quick  # Run quick test (just a dig)
+just test_dns    # Run automated test suite (written in Golang)
 ```
 
 ## Why This Matters
