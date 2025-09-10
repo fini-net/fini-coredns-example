@@ -1,5 +1,6 @@
 # FINI coredns example
 
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11155/badge)](https://www.bestpractices.dev/projects/11155)
 ![GitHub Issues](https://img.shields.io/github/issues/fini-net/fini-coredns-example)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/fini-net/fini-coredns-example)
 ![GitHub License](https://img.shields.io/github/license/fini-net/fini-coredns-example)
