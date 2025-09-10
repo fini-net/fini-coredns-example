@@ -6,8 +6,8 @@ import? '.just/gh-process.just'
 # we could split this justfile up more but I wanted to keep the
 # most interesting parts of the demo in this file.
 
-# list / default
-[group('just')]
+# list recipes / runs by default
+[group('Utility')]
 list:
 	just --list
 
@@ -22,7 +22,7 @@ push:
 	cd dns && dnscontrol push --cmode concurrent
 
 # install prerequisites (on Macs)
-[macos, group('install')]
+[macos, group('Utility')]
 install_prereqs:
 	brew install jq dnscontrol coredns
 	# some rust magic to get cargo that I've forgotten
@@ -36,7 +36,7 @@ container_repo := "ghcr.io"
 github_user := "fini-net"
 
 # build container with podman
-[group('container')]
+[group('container_build')]
 build_con:
 	@echo "{{BLUE}}latest_release={{ latest_release }}{{NORMAL}}"
 	# just makes sure that . is the topmost dir of the git repo
@@ -55,8 +55,8 @@ clean_con:
 	podman rm corednstest
 
 # test containerized coredns with dig
-[group('container')]
-test_con:
+[group('container_test')]
+test_quick:
 	@echo "{{BLUE}}Expect to see in dig output:\n;; ANSWER SECTION:\nwww.example.com.        3600    IN      CNAME   server1.example.com.\nserver1.example.com.    3600    IN      A       10.0.0.101{{NORMAL}}\n"
 	dig @localhost -p 1029 www.example.com
 
@@ -66,7 +66,7 @@ inspect_con:
 	podman inspect fini-coredns-example | jq '.[0].Labels'
 
 # login to ghcr
-[group('container')]
+[group('container_build')]
 ghcr_login:
 	#!/usr/bin/env bash
 
@@ -78,12 +78,12 @@ ghcr_login:
 	fi
 
 # login to ghcr
-[group('container')]
+[group('container_build')]
 ghcr_logout:
 	podman logout {{ container_repo }}
 
 # push container to ghcr
-[group('container')]
+[group('container_build')]
 ghcr_push:
 	podman login {{ container_repo }} --get-login # check current user and fail if not logged in
 	podman push {{ container_repo }}/{{ github_user }}/{{ repo_name }}:{{ latest_release }}
@@ -93,25 +93,25 @@ ghcr_push:
 # ?? should we only push each build once?
 
 # run DNS tests against container (requires container to be running)
-[group('test')]
+[group('container_test')]
 test_dns:
 	@echo "{{BLUE}}Make sure container is running: just run_con{{NORMAL}}"
 	go test ./test -v
 
 # run tests with race detection
-[group('test')]
+[group('container_test')]
 test_dns_race:
 	@echo "{{BLUE}}Make sure container is running: just run_con{{NORMAL}}"
 	go test ./test -v -race
 
 # run specific test
-[group('test')]
+[group('container_test')]
 test_dns_single TEST:
 	@echo "{{BLUE}}Make sure container is running: just run_con{{NORMAL}}"
 	go test ./test -v -run {{TEST}}
 
 # show internal justfile variables
-[group('utility')]
+[group('Utility')]
 @debug:
 	echo "container_repo={{GREEN}}{{ container_repo }}{{NORMAL}}"
 	echo "github_user={{GREEN}}{{ github_user }}{{NORMAL}}"
