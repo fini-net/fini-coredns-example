@@ -31,6 +31,7 @@ install_prereqs:
 # container build/push variables
 latest_release := `gh release list -L 1 --json name,isLatest | jq -r '.[].name'`
 repo_name := "fini-coredns-example"
+full_repo_name := "ghcr.io/fini-net/fini-coredns-example"
 container_repo := "ghcr.io"
 github_user := "fini-net"
 
@@ -39,12 +40,13 @@ github_user := "fini-net"
 build_con:
 	@echo "{{BLUE}}latest_release={{ latest_release }}{{NORMAL}}"
 	# just makes sure that . is the topmost dir of the git repo
+	# TODO: use full_repo_name in the next line please
 	podman build -t {{ repo_name }}:latest -t {{ repo_name}}:{{ latest_release }} -t {{ container_repo }}/{{ github_user }}/{{ repo_name }}:latest -t {{ container_repo }}/{{ github_user }}/{{ repo_name }}:{{ latest_release }} --build-arg BUILD_VERSION="{{ latest_release }}" .
 
 # run container with podman
 [group('container')]
 run_con:
-	podman run -d --name corednstest -p 1029:53/udp {{ repo_name }} --conf /etc/Corefile
+	podman run -d --name corednstest -p 1029:53/udp {{ full_repo_name }} --conf /etc/Corefile
 
 # clean up containers with podman
 [group('container')]
