@@ -9,7 +9,9 @@
       "Bash(just test_dns:*)",
       "Bash(gh pr list:*)",
       "Bash(gh run view:*)",
-      "Bash(gh issue create:*)"
+      "Bash(gh issue create:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue edit:*)"
     ],
     "deny": [],
     "ask": []
