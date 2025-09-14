@@ -1,5 +1,7 @@
 # DNSControl + CoreDNS Container Example - Announcement
 
+Posted at <https://groups.google.com/g/dnscontrol-discuss/c/eBqvTtnA3is>
+
 Subject: New Complete Example: DNSControl → CoreDNS Container with Automated Testing
 
 ---
