@@ -1,11 +1,46 @@
 # conf/coredns
 
-Configs for coredns.
+Configuration for CoreDNS, a fast and flexible DNS server.
 
-## usage
+## About CoreDNS
 
-Run `coredns` in this directory and it should serve
-the two example domains from elsewhere in this repo.
+CoreDNS is a DNS server/forwarder written in Go that chains plugins together. Each plugin performs a DNS function. CoreDNS is the successor to SkyDNS and the default DNS server for Kubernetes.
+
+### Installation
+
+On macOS, install CoreDNS using Homebrew:
+
+```bash
+brew install coredns
+```
+
+For other platforms, see the [CoreDNS installation guide](https://coredns.io/manual/installation/).
+
+## Usage
+
+Run `coredns` in this directory and it should serve the two example domains from elsewhere in this repo on port 5300:
+
+```bash
+cd conf/coredns
+coredns
+```
+
+The `Corefile` in this directory configures CoreDNS to:
+
+- Serve `example.com` and `example.org` zones from generated BIND files
+- Listen on port 5300 (non-privileged port for development)
+- Enable query logging for debugging
+- Provide authoritative answers for configured zones
+
+### Testing Queries
+
+Test the DNS server with dig:
+
+```bash
+dig @localhost -p 5300 www.example.com
+dig @localhost -p 5300 calendar.example.org
+dig @localhost -p 5300 example.com NS
+```
 
 ## server logs
 
