@@ -1,12 +1,11 @@
 # FINI coredns example
 
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11155/badge)](https://www.bestpractices.dev/projects/11155)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fini-net/fini-coredns-example)](https://goreportcard.com/report/github.com/fini-net/fini-coredns-example)
 [![GitHub release](https://img.shields.io/github/release/fini-net/fini-coredns-example/all.svg)](https://github.com/fini-net/fini-coredns-example/releases)
 ![GitHub Issues](https://img.shields.io/github/issues/fini-net/fini-coredns-example)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/fini-net/fini-coredns-example)
 ![GitHub License](https://img.shields.io/github/license/fini-net/fini-coredns-example)
-![GitHub watchers](https://img.shields.io/github/watchers/fini-net/fini-coredns-example)
-[![Go Report Card](https://goreportcard.com/badge/github.com/fini-net/fini-coredns-example)](https://goreportcard.com/report/github.com/fini-net/fini-coredns-example)
 
 A complete example demonstrating how to use
 [DNSControl](https://github.com/StackExchange/dnscontrol) to generate DNS zone
