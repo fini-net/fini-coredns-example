@@ -14,9 +14,9 @@ sync:
     git pull
     git stp
 
-# PR create 3.1
+# PR create 3.3
 [group('Process')]
-pr: _on_a_branch
+pr: _has_commits && pr_checks
     #!/usr/bin/env bash
     set -euxo pipefail # strict mode
 
@@ -27,12 +27,14 @@ pr: _on_a_branch
 
     bodyfile=$(mktemp /tmp/justfile.XXXXXX)
 
-    echo "## Done:" >> $bodyfile
+    echo "## Done" >> $bodyfile
     echo "" >> $bodyfile
     echo "- {{ last_commit_message }}" >> $bodyfile
     echo "" >> $bodyfile
     echo "" >> $bodyfile
-    echo "(Automated in \`justfile\`.)" >> $bodyfile
+    echo "## Meta" >> $bodyfile
+    echo "" >> $bodyfile
+    echo "(Automated in \`.just/gh-process.just\`.)" >> $bodyfile
 
     echo ''
     cat "$bodyfile"
@@ -48,7 +50,6 @@ pr: _on_a_branch
 
     echo "{{BLUE}}sleeping for 10s because github is lazy with their API{{NORMAL}}"
     sleep 10
-    gh pr checks --watch -i 5
 
 # merge PR and return to starting point
 [group('Process')]
@@ -84,14 +85,30 @@ _on_a_branch:
 # error if not on the release branch
 [group('sanity check')]
 [no-cd]
+_has_commits: _on_a_branch
+    #!/bin/bash
+
+    # thanks to https://stackoverflow.com/a/24668421/2002471
+
+    CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+    #echo $CURRENT_BRANCH
+
+    if [[ $(git cherry -v {{ release_branch }} "$CURRENT_BRANCH" | wc -l) -eq 0 ]]; then
+      echo "You are on a branch that {{RED}}does not have any commits{{NORMAL}}."
+      exit 101
+    fi
+
+# error if not on the release branch
+[group('sanity check')]
+[no-cd]
 _main_branch:
     #!/bin/bash
 
     # thanks to https://stackoverflow.com/a/12142066/2002471
 
     if [[ ! $(git rev-parse --abbrev-ref HEAD) == "{{ release_branch }}" ]]; then
-      echo "You are on a branch that is not the release branch so you are not ready to start a new branch."
-      exit 100
+      echo "You are on a {{BLUE}}branch that is not the release branch{{NORMAL}} so you are not ready to start a new branch."
+      exit 102
     fi
 
 # print UTC date in ISO format
@@ -103,4 +120,49 @@ _main_branch:
 # make a release
 [group('Process')]
 release rel_version:
-   gh release create {{rel_version}} --generate-notes
+    gh release create {{rel_version}} --generate-notes
+
+# watch GHAs then check for Copilot suggestions
+[group('Process')]
+pr_checks:
+    #!/usr/bin/env bash
+    set -euo pipefail # bash strict mode
+
+    gh pr checks --watch -i 5
+
+    echo checking copilot...
+    PR_META=$(gh pr view --json number,headRepository,headRepositoryOwner)
+    PR_REPO_NAME=$(echo $PR_META | jq -r '.headRepository.name')
+    PR_REPO_OWNER=$(echo $PR_META | jq -r '.headRepositoryOwner.login')
+    PR_NUMBER=$(echo $PR_META | jq '.number')
+    #echo "$PR_NUMBER $PR_REPO_OWNER/$PR_REPO_NAME"
+    gh api graphql \
+      -F owner=$PR_REPO_OWNER -F name=$PR_REPO_NAME -F pr=$PR_NUMBER \
+      --jq '[ .data.repository.pullRequest.reviews.nodes.[] | select(.author.login=="copilot-pull-request-reviewer") | .comments.nodes.[] ]' \
+      -f query='
+      query($name: String!, $owner: String!, $pr: Int!) {
+        repository(owner: $owner, name: $name) {
+          pullRequest(number: $pr) {
+            reviews(last: 20) {
+              nodes {
+                author {
+                  resourcePath
+                  login
+                }
+                comments(first: 100) {
+                  nodes {
+                    body
+                    path
+                    originalLine
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      '
+
+      # did Claude comment?
+      echo -e "\n\n🟧🟠🔶🔸 Claude:"
+      gh pr view --json comments --jq '[.comments[] | select(.author.login == "claude")] | last | .body'
