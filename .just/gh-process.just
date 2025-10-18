@@ -14,7 +14,7 @@ sync:
     git pull
     git stp
 
-# PR create 3.3
+# PR create 3.4
 [group('Process')]
 pr: _has_commits && pr_checks
     #!/usr/bin/env bash
@@ -126,7 +126,6 @@ release rel_version:
 [group('Process')]
 pr_checks:
     #!/usr/bin/env bash
-    set -euo pipefail # bash strict mode
 
     gh pr checks --watch -i 5
 
