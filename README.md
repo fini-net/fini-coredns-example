@@ -145,9 +145,8 @@ podman inspect fini-coredns-example | jq '.[0].Labels'
 ## Testing
 
 The repository includes automated Go tests that validate DNS responses from the
-container.  I looked for a pre-existing DNS test solution, but the few that I
-found would not work in this scenario.  So Claude generated a
-[test suite](test).
+container.  After evaluating existing DNS test solutions, none were suitable for
+this scenario. So Claude generated a [test suite](test).
 
 This is what it looks like in action:
 
