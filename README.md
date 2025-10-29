@@ -144,7 +144,12 @@ podman inspect fini-coredns-example | jq '.[0].Labels'
 
 ## Testing
 
-The repository includes automated Go tests that validate DNS responses from the container:
+The repository includes automated Go tests that validate DNS responses from the
+container.  I looked for a pre-existing DNS test solution, but the few that I
+found would not work in this scenario.  So Claude generated a
+[test suite](test).
+
+This is what it looks like in action:
 
 ```ShellSession
 % just test_dns
@@ -185,7 +190,9 @@ PASS
 ok  	github.com/fini-net/fini-coredns-example/test	0.220s
 ```
 
-The test suite validates specific DNS records including A, AAAA, CNAME, TXT, NS, and MX records across both example domains. Tests require the container to be running first via `just run_con`.
+The test suite validates specific DNS records including A, AAAA, CNAME, TXT,
+NS, and MX records across both example domains. Tests require the container to
+be running first via `just run_con` or direct `podman` commands.
 
 ## Standards
 
@@ -201,7 +208,7 @@ to avoid interfering with any existing infrastructure.
 
 - [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 - [Contributing Guide](.github/CONTRIBUTING.md) includes a step-by-step guide to our
-  [development processs](.github/CONTRIBUTING.md#development-process).
+  [development process](.github/CONTRIBUTING.md#development-process).
 
 ## Support & Security
 
