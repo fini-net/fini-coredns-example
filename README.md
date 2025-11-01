@@ -193,7 +193,7 @@ The test suite validates specific DNS records including A, AAAA, CNAME, TXT,
 NS, and MX records across both example domains. Tests require the container to
 be running first via `just run_con` or direct `podman` commands.
 
-## Standards
+## Standards Compliance
 
 The domains and IPs in the examples contained in this repo should comply with
 
@@ -205,7 +205,8 @@ to avoid interfering with any existing infrastructure.
 
 ## Contributing
 
-- [Code of Conduct](.github/CODE_OF_CONDUCT.md)
+- Please follow our [Code of Conduct](.github/CODE_OF_CONDUCT.md) while participating
+  in this project.
 - [Contributing Guide](.github/CONTRIBUTING.md) includes a step-by-step guide to our
   [development process](.github/CONTRIBUTING.md#development-process).
 
