@@ -1,4 +1,6 @@
-// Defaults
+// This is the entrypoint for dnsconfig
+
+// Providers
 var REG_NONE = NewRegistrar("none");
 var DNS_BIND = NewDnsProvider("bind", {
 	"default_soa": {
