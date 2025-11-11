@@ -113,10 +113,9 @@ test_dns_single TEST:
 # show internal justfile variables
 [group('Utility')]
 @debug:
+	just utcdate
 	echo "container_repo={{GREEN}}{{ container_repo }}{{NORMAL}}"
 	echo "github_user={{GREEN}}{{ github_user }}{{NORMAL}}"
 	echo "git_repo={{GREEN}}{{ repo_name }}{{NORMAL}}"
-	echo "host={{GREEN}}{{ host }}{{NORMAL}}"
-	echo "last_commit_message={{GREEN}}{{ last_commit_message }}{{NORMAL}}"
 	echo "latest_release={{GREEN}}{{ latest_release }}{{NORMAL}}"
 	echo "release_branch={{GREEN}}{{ release_branch }}{{NORMAL}}"
