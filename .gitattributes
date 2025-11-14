@@ -98,4 +98,4 @@
 .gitkeep       export-ignore
 
 # treat "just" as vendored so it doesn't swamp everything else
-/.just/*  linguist-vendored
+/.just/*  linguist-vendored  linguist-documentation
