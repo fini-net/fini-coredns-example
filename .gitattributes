@@ -96,3 +96,6 @@
 .gitattributes export-ignore
 .gitignore     export-ignore
 .gitkeep       export-ignore
+
+# treat "just" as docs so it doesn't total more than the source code in the repo
+/.just/*  linguist-documentation
