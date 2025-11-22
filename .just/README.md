@@ -2,6 +2,21 @@
 
 This directory contains shared justfiles for project automation and workflow management.
 
+## Source of Truth
+
+The master copy of these project files lives in the
+[FINI template-repo](https://github.com/fini-net/template-repo)
+and you should be able to copy them into your
+project for updates.
+
+You should read our
+[release notes](https://github.com/fini-net/template-repo/blob/main/.just/RELEASE_NOTES.md)
+to learn more about the history of how we have evolved the github PR process.
+
+We use the
+[repos-summary script](https://github.com/chicks-net/chicks-home/blob/main/bin/repos-summary)
+to see which of our repos need updates of the just files.
+
 ## About Just
 
 Just is a command runner written in Rust that provides a simple way to save and run project-specific commands. It's similar to Make but designed specifically for command running rather than building. Just recipes can include shell scripts, variables, and conditional execution.
