@@ -1,5 +1,6 @@
 # project justfile
 
+import? '.just/shellcheck.just'
 # github process recipes carried over from the template repo
 import? '.just/gh-process.just'
 
