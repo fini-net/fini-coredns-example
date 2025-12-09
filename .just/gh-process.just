@@ -13,7 +13,7 @@ sync:
     git pull
     git status --porcelain # stp
 
-# PR create v4.0
+# PR create v4.1
 [group('Process')]
 pr: _has_commits && pr_checks
     #!/usr/bin/env bash
@@ -146,7 +146,7 @@ release rel_version:
 
 # watch GHAs then check for Copilot suggestions
 [group('Process')]
-pr_checks: _on_a_pull_request
+pr_checks: _on_a_pull_request && claude_review
     #!/usr/bin/env bash
 
     gh pr checks --watch -i 5
@@ -184,6 +184,13 @@ pr_checks: _on_a_pull_request
             }
         }
         '
+
+    # chains to claude_review
+
+# Claude's latest PR code review
+[group('Process')]
+claude_review: _on_a_pull_request
+    #!/usr/bin/env bash
 
     # did Claude comment?
     echo -e "\n\n🟧🟠🔶🔸 Claude:"
@@ -317,3 +324,77 @@ pr_verify: _on_a_pull_request
 
     # cleanup
     rm "$stdin_content" "$bodyfile" "$updated_body"
+
+# check how long ago the last release was
+[group('Process')]
+release_age:
+    #!/usr/bin/env bash
+    set -euo pipefail # strict mode
+
+    echo "{{BLUE}}Checking last release age...{{NORMAL}}"
+    echo ""
+
+    # Get the latest release tag using JSON for robustness
+    release_tag=$(gh release list --limit 1 --json tagName -q '.[0].tagName' 2>/dev/null)
+
+    if [[ -z "$release_tag" ]]; then
+        echo "{{YELLOW}}No releases found{{NORMAL}}"
+        exit 0
+    fi
+
+    # Get release date using JSON
+    release_date=$(gh release view "$release_tag" --json publishedAt -q .publishedAt 2>/dev/null | cut -d'T' -f1)
+
+    if [[ -z "$release_date" ]]; then
+        echo "{{RED}}Could not determine release date{{NORMAL}}"
+        exit 1
+    fi
+
+    # Convert release date to epoch seconds (cross-platform)
+    # Try GNU date first (Linux), then BSD date (macOS)
+    if release_epoch=$(date -d "$release_date" +%s 2>/dev/null); then
+        # GNU date (Linux)
+        current_epoch=$(date +%s)
+    elif release_epoch=$(date -j -f "%Y-%m-%d" "$release_date" +%s 2>/dev/null); then
+        # BSD date (macOS)
+        current_epoch=$(date +%s)
+    else
+        echo "{{RED}}Could not parse release date: $release_date{{NORMAL}}"
+        exit 1
+    fi
+
+    days_old=$(( (current_epoch - release_epoch) / 86400 ))
+
+    # Count commits since last release on main/master branch
+    if git rev-parse --verify main >/dev/null 2>&1; then
+        main_branch="main"
+    elif git rev-parse --verify master >/dev/null 2>&1; then
+        main_branch="master"
+    else
+        echo "{{RED}}Could not find main or master branch{{NORMAL}}"
+        exit 1
+    fi
+
+    commits_since=$(git rev-list --count "${release_tag}..${main_branch}" 2>/dev/null || echo "0")
+
+    # Display results with color coding
+    echo "Latest release: {{CYAN}}$release_tag{{NORMAL}}"
+    echo "Published: {{CYAN}}$release_date{{NORMAL}}"
+
+    if [[ $days_old -gt 60 ]]; then
+        echo "Age: {{YELLOW}}$days_old days old{{NORMAL}}"
+        echo "Commits since release: {{YELLOW}}$commits_since{{NORMAL}}"
+        echo ""
+        echo "{{YELLOW}}⚠ Release is more than 60 days old - consider creating a new release{{NORMAL}}"
+    else
+        echo "Age: {{GREEN}}$days_old days old{{NORMAL}}"
+        echo "Commits since release: {{GREEN}}$commits_since{{NORMAL}}"
+    fi
+
+# push changes, update PR description, and watch GHAs
+[group('Process')]
+again:
+    git push
+    just pr_update
+    sleep 2
+    just pr_checks
