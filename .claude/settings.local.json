@@ -11,7 +11,8 @@
       "Bash(gh run view:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue view:*)",
-      "Bash(gh issue edit:*)"
+      "Bash(gh issue edit:*)",
+      "Bash(markdownlint-cli2:*)"
     ],
     "deny": [],
     "ask": []
