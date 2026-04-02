@@ -1,5 +1,11 @@
 # project justfile
 
+import? '.just/template-sync.just'
+import? '.just/repo-toml.just'
+import? '.just/pr-hook.just'
+import? '.just/cue-verify.just'
+import? '.just/copilot.just'
+import? '.just/claude.just'
 import? '.just/shellcheck.just'
 # github process recipes carried over from the template repo
 import? '.just/gh-process.just'
@@ -42,7 +48,7 @@ build_con:
 	@echo "{{BLUE}}latest_release={{ latest_release }}{{NORMAL}}"
 	# just makes sure that . is the topmost dir of the git repo
 	# TODO: use full_repo_name in the next line please
-	podman build -t {{ repo_name }}:latest -t {{ repo_name}}:{{ latest_release }} -t {{ container_repo }}/{{ github_user }}/{{ repo_name }}:latest -t {{ container_repo }}/{{ github_user }}/{{ repo_name }}:{{ latest_release }} --build-arg BUILD_VERSION="{{ latest_release }}" .
+	podman build -t "{{ repo_name }}:latest" -t "{{ repo_name}}:{{ latest_release }}" -t "{{ container_repo }}/{{ github_user }}/{{ repo_name }}:latest" -t "{{ container_repo }}/{{ github_user }}/{{ repo_name }}:{{ latest_release }}" --build-arg BUILD_VERSION="{{ latest_release }}" .
 
 # run container with podman
 [group('container')]
@@ -71,24 +77,24 @@ inspect_con:
 ghcr_login:
 	#!/usr/bin/env bash
 
-	if podman login {{ container_repo }} --get-login > /dev/null; then
+	if podman login "{{ container_repo }}" --get-login > /dev/null; then
 		echo "{{GREEN}}already logged in to {{ container_repo }}.{{NORMAL}}"
 	else
 		#gh auth token | podman login {{ container_repo }} --username {{ github_user }} --password-stdin
-		op item get "fini-coredns-example-pat" --reveal --field token | podman login {{ container_repo }} --username {{ github_user }} --password-stdin
+		op item get "fini-coredns-example-pat" --reveal --field token | podman login "{{ container_repo }}" --username "{{ github_user }}" --password-stdin
 	fi
 
 # login to ghcr
 [group('container_build')]
 ghcr_logout:
-	podman logout {{ container_repo }}
+	podman logout "{{ container_repo }}"
 
 # push container to ghcr
 [group('container_build')]
 ghcr_push:
-	podman login {{ container_repo }} --get-login # check current user and fail if not logged in
-	podman push {{ container_repo }}/{{ github_user }}/{{ repo_name }}:{{ latest_release }}
-	podman push {{ container_repo }}/{{ github_user }}/{{ repo_name }}:latest
+	podman login "{{ container_repo }}" --get-login # check current user and fail if not logged in
+	podman push "{{ container_repo }}/{{ github_user }}/{{ repo_name }}:{{ latest_release }}"
+	podman push "{{ container_repo }}/{{ github_user }}/{{ repo_name }}:latest"
 
 # ?? should we use the two argument form of `push` instead?
 # ?? should we only push each build once?

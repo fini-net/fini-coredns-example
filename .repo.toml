@@ -1,0 +1,15 @@
+# .repo.toml
+
+[about]
+description = "Coredns with dnscontrol example 📛🌤"
+topics = ["coredns", "dns-server", "dnscontrol", "example"]
+
+[urls]
+git_ssh = "git@github.com:fini-net/fini-coredns-example.git"
+web_url = "https://github.com/fini-net/fini-coredns-example"
+
+[flags]
+claude = true
+claude-review = true
+copilot-review = true
+standard-release = true
