@@ -15,9 +15,9 @@ REPO_ORG_NAME="fini-net"
 REPO_REPO_NAME="fini-coredns-example"
 
 # Feature flags (strings: "true" or "false")
-FLAG_CLAUDE="false"
-FLAG_CLAUDE_REVIEW="false"
-FLAG_COPILOT_REVIEW="false"
+FLAG_CLAUDE="true"
+FLAG_CLAUDE_REVIEW="true"
+FLAG_COPILOT_REVIEW="true"
 FLAG_STANDARD_RELEASE="true"
 
 # Topics as array (for iteration)
