@@ -1,5 +1,11 @@
 # project justfile
 
+import? '.just/template-sync.just'
+import? '.just/repo-toml.just'
+import? '.just/pr-hook.just'
+import? '.just/cue-verify.just'
+import? '.just/copilot.just'
+import? '.just/claude.just'
 import? '.just/shellcheck.just'
 # github process recipes carried over from the template repo
 import? '.just/gh-process.just'
