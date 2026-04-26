@@ -1,5 +1,6 @@
 # FINI coredns example
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/fini-net/fini-coredns-example/badge)](https://scorecard.dev/viewer/?uri=github.com/fini-net/fini-coredns-example)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/11155/badge)](https://www.bestpractices.dev/projects/11155)
 [![Go Report Card](https://goreportcard.com/badge/github.com/fini-net/fini-coredns-example)](https://goreportcard.com/report/github.com/fini-net/fini-coredns-example)
 [![GitHub release](https://img.shields.io/github/release/fini-net/fini-coredns-example/all.svg)](https://github.com/fini-net/fini-coredns-example/releases)
