@@ -1,0 +1,5 @@
+rules:
+  secrets-outside-env:
+    config:
+      allow:
+        - ORG_GITLEAKS_LICENSE_KEY
