@@ -24,7 +24,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
       - name: Check workflow files
         uses: docker://rhysd/actionlint:latest
         with:
