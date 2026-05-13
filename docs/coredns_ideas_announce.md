@@ -19,7 +19,7 @@ thing, end to end:
 
 ## What it demonstrates
 
-The core idea is using [DNSControl](https://github.com/StackExchange/dnscontrol)
+The core idea is using [DNSControl](https://github.com/DNSControl/dnscontrol)
 to define DNS records in JavaScript, generating standard BIND zone files,
 and then having CoreDNS serve those zones from a container. Here's the
 full stack:
