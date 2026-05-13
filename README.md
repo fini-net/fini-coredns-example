@@ -12,7 +12,7 @@ A complete example demonstrating how to use
 [DNSControl](https://github.com/StackExchange/dnscontrol) to generate DNS zone
 files and serve them with [CoreDNS](https://coredns.io/) in a container.
 
-![banner with logos for coredns, podman, dnscontrol, javascript, and golang](docs/fini-coredns-example-banner.png)
+![lunchroom banner with logos for coredns, podman, dnscontrol, javascript, and golang](docs/fini-coredns-example-banner2.png)
 
 ## What's Included
 
