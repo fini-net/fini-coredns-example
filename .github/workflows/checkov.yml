@@ -34,7 +34,7 @@ jobs:
         with:
           egress-policy: audit
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
 
       - name: Checkov GitHub Action
         uses: bridgecrewio/checkov-action@v12
