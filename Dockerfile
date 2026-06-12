@@ -1,3 +1,4 @@
+# checkov:skip=CKV_DOCKER_7:pinning coredns base image is not desired
 FROM coredns/coredns
 
 ARG BUILD_VERSION
@@ -21,3 +22,8 @@ LABEL \
 COPY Container_root/Corefile /etc/Corefile
 # DNS zone files
 COPY dns/zones/*.zone /zones/
+
+USER nonroot:nonroot
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD [ "/coredns", "-version" ]
