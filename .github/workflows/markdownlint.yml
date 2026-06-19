@@ -20,8 +20,10 @@ jobs:
       with:
         egress-policy: audit
 
-    - uses: actions/checkout@v7.0.0
-    - uses: DavidAnson/markdownlint-cli2-action@v23
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        persist-credentials: false
+    - uses: DavidAnson/markdownlint-cli2-action@1628d9b2c73e580b4cb9b6b34303457a72478c5e # v23
       with:
         globs: |
           **/*.md
