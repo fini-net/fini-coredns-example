@@ -333,6 +333,7 @@ copilot_refresh: _on_a_pull_request
     # Request Copilot review
     echo "🐈‍⬛ Requesting Copilot review on PR #${PR_NUMBER}..."
 
+    REQUEST_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
     if gh api --method POST "/repos/${REPO}/pulls/${PR_NUMBER}/requested_reviewers" \
         -f "reviewers[]=copilot-pull-request-reviewer[bot]" &>/dev/null; then
         echo "{{GREEN}}✓ Copilot review requested successfully{{NORMAL}}"
@@ -349,7 +350,23 @@ copilot_refresh: _on_a_pull_request
     POLL_INTERVAL=5
     INITIAL_DELAY=10  # Give Copilot time to start processing
 
-    # Write a self-contained polling script to avoid declare -f serialization issues
+    # Write a self-contained polling script to avoid declare -f serialization issues.
+    #
+    # The poll loop queries BOTH reviewRequests (with a Bot fragment, since
+    # gh pr view --json reviewRequests silently drops Bot reviewers) and
+    # reviews(last: 10) in a single GraphQL call, then applies a state
+    # machine (see issue #288):
+    #   1. Copilot review exists with any state -> complete (0 comments is
+    #      success: "looks good, no suggestions").
+    #   2. Else if Copilot is in reviewRequests -> in progress, keep polling
+    #      (and say so, instead of printing dots).
+    #   3. Else -> Copilot was never requested / request was dropped -> fail
+    #      fast with a useful message instead of waiting 180s.
+    #
+    # Note: if GraphQL reviewRequests ever stops surfacing the Bot reviewer,
+    # fall back to REST: gh api /repos/OWNER/REPO/pulls/N/requested_reviewers
+    # --jq '.users[].login,.teams[].name' (Copilot shows up as "Copilot"
+    # there, not "copilot-pull-request-reviewer").
     poll_script=$(mktemp /tmp/justfile.copilot_poll.XXXXXX)
     {
         printf '#!/usr/bin/env bash\n'
@@ -357,24 +374,41 @@ copilot_refresh: _on_a_pull_request
         printf 'MAX_WAIT="$1"; POLL_INTERVAL="$2"; INITIAL_DELAY="$3"\n'
         printf 'PR_REPO_OWNER="$4"; PR_REPO_NAME="$5"; PR_NUMBER="$6"\n'
         printf 'USING_GUM="${7:-0}"\n'
+        printf 'REQUEST_TIME="${8:-}"\n'
+        printf 'COPILOT_LOGIN="copilot-pull-request-reviewer"\n'
         printf '\n'
         printf 'echo "Waiting ${INITIAL_DELAY}s for Copilot to start processing..."\n'
         printf 'sleep "$INITIAL_DELAY"\n'
         printf '\n'
         printf 'elapsed=$INITIAL_DELAY\n'
+        printf 'saw_in_progress=0\n'
+        printf 'not_found_count=0\n'
         printf 'while (( elapsed < MAX_WAIT )); do\n'
-        printf '    copilot_data=$(gh api graphql \\\n'
+        printf '    # Single GraphQL call: reviewRequests (with Bot fragment) + reviews(last: 10).\n'
+        printf '    # reviews(last: 10) avoids missing Copilot when another review lands after.\n'
+        printf '    response=$(gh api graphql \\\n'
         printf '        -F owner="$PR_REPO_OWNER" -F name="$PR_REPO_NAME" -F pr="$PR_NUMBER" \\\n'
-        printf '        --jq '"'"'.data.repository.pullRequest.reviews.nodes[] | select(.author.login=="copilot-pull-request-reviewer") | {state: .state, commentCount: (.comments.totalCount)}'"'"' \\\n'
+        printf '        --jq '"'"'.data.repository.pullRequest'"'"' \\\n'
         printf '        -f query='"'"'\n'
         printf '        query($name: String!, $owner: String!, $pr: Int!) {\n'
         printf '            repository(owner: $owner, name: $name) {\n'
         printf '                pullRequest(number: $pr) {\n'
-        printf '                    reviews(last: 1) {\n'
+        printf '                    reviewRequests(first: 10) {\n'
+        printf '                        nodes {\n'
+        printf '                            requestedReviewer {\n'
+        printf '                                __typename\n'
+        printf '                                ... on Bot { login }\n'
+        printf '                                ... on User { login }\n'
+        printf '                                ... on Team { name }\n'
+        printf '                            }\n'
+        printf '                        }\n'
+        printf '                    }\n'
+        printf '                    reviews(last: 10) {\n'
         printf '                        nodes {\n'
         printf '                            author { login }\n'
         printf '                            state\n'
         printf '                            comments { totalCount }\n'
+        printf '                            submittedAt\n'
         printf '                        }\n'
         printf '                    }\n'
         printf '                }\n'
@@ -382,23 +416,67 @@ copilot_refresh: _on_a_pull_request
         printf '        }\n'
         printf '        '"'"' 2>/dev/null) || true\n'
         printf '\n'
-        printf '    if [[ -n "$copilot_data" ]]; then\n'
-        printf '        review_state=$(echo "$copilot_data" | jq -r '"'"'.state // "UNKNOWN"'"'"')\n'
-        printf '        comment_count=$(echo "$copilot_data" | jq -r '"'"'.commentCount // 0'"'"')\n'
-        printf '        if [[ "$review_state" != "null" && "$review_state" != "UNKNOWN" ]] && [[ "$comment_count" -gt 0 ]]; then\n'
-        printf '            echo "Review complete after ${elapsed}s (state: $review_state, $comment_count comments)"\n'
+        printf '    if [[ -z "$response" || "$response" == "null" ]]; then\n'
+        printf '        sleep "$POLL_INTERVAL"\n'
+        printf '        elapsed=$((elapsed + POLL_INTERVAL))\n'
+        printf '        if [ "$USING_GUM" = "0" ]; then echo -n "."; fi\n'
+        printf '        continue\n'
+        printf '    fi\n'
+        printf '\n'
+        printf '    # Pick the latest Copilot-authored review submitted AFTER this refresh\n'
+        printf '    # request was made, so a stale review from an earlier refresh cycle does\n'
+        printf '    # not produce a false "complete" (reviews(last: 10) returns newest at the\n'
+        printf '    # end; | last grabs the most recent Copilot one).\n'
+        printf '    copilot_review=$(echo "$response" | jq -r --arg login "$COPILOT_LOGIN" --arg requestTime "$REQUEST_TIME" '"'"'\n'
+        printf '        [.reviews.nodes[] | select(.author.login == $login and .submittedAt != null and .submittedAt > $requestTime)] | last | {state: .state, commentCount: (.comments.totalCount // 0)}'"'"' 2>/dev/null) || true\n'
+        printf '\n'
+        printf '    if [[ -n "$copilot_review" && "$copilot_review" != "null" ]]; then\n'
+        printf '        review_state=$(echo "$copilot_review" | jq -r '"'"'.state // "UNKNOWN"'"'"' || echo "UNKNOWN")\n'
+        printf '        comment_count=$(echo "$copilot_review" | jq -r '"'"'.commentCount // 0'"'"' || echo 0)\n'
+        printf '        if [[ "${review_state:-UNKNOWN}" != "null" && "${review_state:-UNKNOWN}" != "UNKNOWN" ]]; then\n'
+        printf '            if [[ "${comment_count:-0}" -gt 0 ]]; then\n'
+        printf '                echo "Review complete after ${elapsed}s (state: $review_state, $comment_count comments)"\n'
+        printf '            else\n'
+        printf '                echo "Review complete after ${elapsed}s (state: $review_state, no suggestions)"\n'
+        printf '            fi\n'
         printf '            exit 0\n'
-        printf '        elif [[ "$review_state" != "null" && "$review_state" != "UNKNOWN" ]]; then\n'
-        printf '            echo "Review found but still processing (state: $review_state, $comment_count comments)"\n'
+        printf '        fi\n'
+        printf '    fi\n'
+        printf '\n'
+        printf '    # No Copilot review yet - is Copilot in reviewRequests (in progress)?\n'
+        printf '    copilot_requested=$(echo "$response" | jq -r --arg login "$COPILOT_LOGIN" '"'"'\n'
+        printf '        [.reviewRequests.nodes[].requestedReviewer | select(.login == $login)] | length'"'"' 2>/dev/null) || true\n'
+        printf '\n'
+        printf '    if [[ "${copilot_requested:-0}" -gt 0 ]]; then\n'
+        printf '        saw_in_progress=1\n'
+        printf '        not_found_count=0\n'
+        printf '        if [ "$USING_GUM" = "0" ]; then echo -n "."; fi\n'
+        printf '    else\n'
+        printf '        # Not requested and no review - either never started or was dropped.\n'
+        printf '        # Require two consecutive "not found" polls before failing fast so a\n'
+        printf '        # single GraphQL read that lags the prior REST POST that requested\n'
+        printf '        # the review (cross-service eventual consistency on GitHub'"'"'s side)\n'
+        printf '        # does not produce a false failure on the very first poll.\n'
+        printf '        if [[ "$saw_in_progress" -eq 0 ]]; then\n'
+        printf '            not_found_count=$((not_found_count + 1))\n'
+        printf '            if [[ "$not_found_count" -ge 2 ]]; then\n'
+        printf '                echo ""\n'
+        printf '                echo "Copilot was not found in reviewRequests and has no review on PR #${PR_NUMBER}."\n'
+        printf '                echo "This may mean Copilot was never requested, finished and was unassigned,"\n'
+        printf '                echo "or the Bot reviewer is not surfaced via GraphQL reviewRequests."\n'
+        printf '                echo "If this keeps happening, fall back to REST:"\n'
+        printf '                echo "  gh api /repos/${PR_REPO_OWNER}/${PR_REPO_NAME}/pulls/${PR_NUMBER}/requested_reviewers --jq '"'"'.users[].login'"'"'"\n'
+        printf '                exit 1\n'
+        printf '            fi\n'
+        printf '            if [ "$USING_GUM" = "0" ]; then echo -n "."; fi\n'
+        printf '        else\n'
+        printf '            # We saw it in progress earlier; it disappeared without a review landing yet.\n'
+        printf '            if [ "$USING_GUM" = "0" ]; then echo -n "."; fi\n'
         printf '        fi\n'
         printf '    fi\n'
         printf '\n'
         printf '    sleep "$POLL_INTERVAL"\n'
         printf '    elapsed=$((elapsed + POLL_INTERVAL))\n'
-        printf '\n'
-        printf '    if [ "$USING_GUM" = "0" ]; then\n'
-        printf '        echo -n "."\n'
-        printf '    fi\n'
         printf 'done\n'
         printf '\n'
         printf 'echo ""\n'
@@ -411,12 +489,12 @@ copilot_refresh: _on_a_pull_request
     if command -v gum &> /dev/null; then
         USING_GUM=1 gum spin --spinner dot --title "Waiting for Copilot review..." -- \
             bash "$poll_script" "$MAX_WAIT" "$POLL_INTERVAL" "$INITIAL_DELAY" \
-            "$PR_REPO_OWNER" "$PR_REPO_NAME" "$PR_NUMBER" "1"
+            "$PR_REPO_OWNER" "$PR_REPO_NAME" "$PR_NUMBER" "1" "$REQUEST_TIME"
         review_ready=$?
     else
         echo "{{BLUE}}Waiting for Copilot review...{{NORMAL}}"
         if bash "$poll_script" "$MAX_WAIT" "$POLL_INTERVAL" "$INITIAL_DELAY" \
-            "$PR_REPO_OWNER" "$PR_REPO_NAME" "$PR_NUMBER" "0"; then
+            "$PR_REPO_OWNER" "$PR_REPO_NAME" "$PR_NUMBER" "0" "$REQUEST_TIME"; then
             review_ready=0
         else
             review_ready=1
