@@ -14,7 +14,7 @@ on:
 permissions: {}
 
 jobs:
-  scan:
+  gitleaks-scan:
     name: gitleaks
     runs-on: ubuntu-latest
     if: github.actor != 'dependabot[bot]'
