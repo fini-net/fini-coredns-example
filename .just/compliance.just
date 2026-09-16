@@ -48,10 +48,19 @@ compliance_check:
         echo "{{RED}}[gh] You do NOT have Issue Templates.  I must take issue with that.{{NORMAL}}"
     fi
 
-    if [[ $(gh repo view --json description | jq -r '.description' | wc -c) -gt 16 ]]; then
-        echo "{{GREEN}}[gh] You have a repo description, more evidence that you are undescribable.{{NORMAL}}"
+    # Assignment in an `if` so a gh failure (missing gh, expired auth, API
+    # error) skips just this check instead of aborting the recipe under
+    # `set -euo pipefail` or reporting a false verdict off an empty
+    # substitution (matches the REPO_META pattern below).
+    if desc_json=$(gh repo view --json description 2>/dev/null); then
+        desc_len=$(echo "$desc_json" | jq -r '.description' | wc -c)
+        if [[ "$desc_len" -gt 16 ]]; then
+            echo "{{GREEN}}[gh] You have a repo description, more evidence that you are undescribable.{{NORMAL}}"
+        else
+            echo "{{RED}}[gh] You do NOT have a repo description, can you write a word or two please?{{NORMAL}}"
+        fi
     else
-        echo "{{RED}}[gh] You do NOT have a repo description, can you write a word or two please?{{NORMAL}}"
+        echo "{{YELLOW}}[gh] Repo description check skipped: gh repo view failed (auth/network?){{NORMAL}}"
     fi
 
     # Social preview image (Settings > General > Social preview).
@@ -140,8 +149,9 @@ compliance_check:
     fi
 
     # CI-Tests: workflows that actually run tests
-    # bare-word tokens get \b boundaries so 'jest' can't match 'majestic' etc.
-    test_cmds='npm test|npm run test|pytest|go test|cargo test|make test|bazel test|mvn test|gradle test|deno test|\b(tox|jest|rspec|vitest)\b|just [a-z0-9_-]*test'
+    # bare-word tokens get \b boundaries so 'jest' can't match 'majestic' etc.;
+    # also \b before 'just' so 'adjust testing' can't match mid-word
+    test_cmds='npm test|npm run test|pytest|go test|cargo test|make test|bazel test|mvn test|gradle test|deno test|\b(tox|jest|rspec|vitest)\b|\bjust [a-z0-9_-]*test'
     if [[ -d .github/workflows ]] && grep -lrE "$test_cmds" .github/workflows >/dev/null 2>&1; then
         echo "{{GREEN}}[openssf] CI runs tests on every push, machines grinding so humans can look away.{{NORMAL}}"
     else
@@ -243,12 +253,47 @@ compliance_check:
     fi
 
     # Token-Permissions: workflows declaring a top-level permissions block
+    # Anchored to '^permissions:' because '^[[:space:]]*permissions:' also
+    # matched job-level indented blocks, silently reporting GREEN for
+    # workflows with no top-level block at all.
     missing_perms=""
     if [[ -d .github/workflows ]]; then
-        missing_perms=$(grep -rLE '^[[:space:]]*permissions:' .github/workflows 2>/dev/null || true)
+        missing_perms=$(grep -rLE '^permissions:' .github/workflows 2>/dev/null || true)
     fi
     if [[ -z "$missing_perms" ]]; then
         echo "{{GREEN}}[openssf] All workflows declare a top-level permissions block, least privilege is the best privilege.{{NORMAL}}"
     else
         echo "{{RED}}[openssf] Workflow(s) missing top-level 'permissions:' block: $(echo "$missing_perms" | tr '\n' ' ').  Grant them a trust fall, why don't you.{{NORMAL}}"
+    fi
+
+# validate that git-tracked files conform to .editorconfig
+# (editorconfig-checker exits non-zero on the first offending file set)
+# Best-effort gate: missing tool or missing .editorconfig warns and exits 0
+# so the check never blocks a push in repos that opted out.  CI
+# (.github/workflows/editorconfig.yml) remains the hard enforcement.
+# See: https://github.com/fini-net/template-repo/issues/329
+[group('Testing/Compliance')]
+editorconfig_check:
+    #!/usr/bin/env bash
+    set -euo pipefail # strict mode
+
+    if [[ ! -e .editorconfig ]]; then
+        echo "{{YELLOW}}No .editorconfig found - skipping editorconfig check.{{NORMAL}}"
+        exit 0
+    fi
+
+    if ! command -v editorconfig-checker >/dev/null 2>&1; then
+        echo "{{YELLOW}}editorconfig-checker is not installed - skipping editorconfig check.{{NORMAL}}"
+        echo "{{YELLOW}}Install with: brew install editorconfig-checker (or see https://editorconfig-checker.github.io){{NORMAL}}"
+        exit 0
+    fi
+
+    if editorconfig-checker; then
+        echo "{{GREEN}}All files conform to .editorconfig - your indentation is beyond reproach.{{NORMAL}}"
+    else
+        echo ""
+        echo "{{RED}}editorconfig check failed.{{NORMAL}}"
+        echo "{{RED}}Common culprit: RELEASE_NOTES.md numbered-list continuation lines with 3-space indent (aligning under '1. ').{{NORMAL}}"
+        echo "{{RED}}Continuation indents must be a multiple of 2 (2 or 4 spaces).  See CLAUDE.md 'Versioning .just/* changes'.{{NORMAL}}"
+        exit 1
     fi
